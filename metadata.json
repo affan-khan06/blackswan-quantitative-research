@@ -1,0 +1,6 @@
+{
+  "name": "BLACKSWAN",
+  "description": "Institutional-style quantitative portfolio risk intelligence platform for Indian NSE markets featuring Monte Carlo simulation, GARCH(1,1) volatility, HMM regime detection, crisis stress testing, and out-of-sample VaR backtesting.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

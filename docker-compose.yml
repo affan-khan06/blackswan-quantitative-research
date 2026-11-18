@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: blackswan-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-blackswan}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-blackswan_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-blackswan}
+    ports:
+      - "5432:5432"
+    volumes:
+      - blackswan_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-blackswan}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blackswan-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      BLACKSWAN_ENV: production
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-blackswan}:${POSTGRES_PASSWORD:-blackswan_dev}@postgres:5432/${POSTGRES_DB:-blackswan}
+      BLACKSWAN_DATA_DIR: /app/data
+      BLACKSWAN_DEFAULT_RISK_FREE_RATE: "0.065"
+    ports:
+      - "8000:8000"
+    volumes:
+      - blackswan_data:/app/data
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: blackswan-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  blackswan_pgdata:
+  blackswan_data:
